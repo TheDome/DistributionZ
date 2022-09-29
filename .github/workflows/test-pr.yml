@@ -54,12 +54,15 @@ jobs:
     needs:
       - action-lint
       - audit
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
       - uses: actions/checkout@v3
-      - name: Build on Node.js 16.x
+      - name: Build on Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3.4.1
         with:
-          node-version: 16.x
+          node-version: ${{ matrix.node-version }}
       - uses: actions/cache@v3
         with:
           path: |
@@ -125,17 +128,19 @@ jobs:
             semantic-release@latest \
             @semantic-release/git@latest \
             @semantic-release/release-notes-generator@latest \
-            @semantic-release/github@latest 
+            @semantic-release/github@latest \
+            @semantic-release/npm@latest
       - shell: bash
         run: |
           semantic-release \
             --branches master \
-            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github" \
+            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github,@semantic-release/npm" \
             --tag-format "\${version}" \
             --debug true
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   auto-merge:
     needs:
