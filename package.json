@@ -1,0 +1,41 @@
+{
+  "private": true,
+  "name": "ShiftX",
+  "description": "ShiftX is an easy to use distribution system",
+  "version": "1.0.0",
+  "author": "Dominic Heun <dominic.heun@gmx.net>",
+  "main": "app/background.js",
+  "scripts": {
+    "dev": "nextron",
+    "build": "nextron build",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "bootstrap": "5.2.1",
+    "electron-serve": "1.1.0",
+    "electron-store": "8.1.0",
+    "react-bootstrap": "2.5.0",
+    "reflect-metadata": "0.1.13",
+    "sequelize": "6.23.2",
+    "sequelize-typescript": "2.1.3",
+    "sqlite3": "5.1.1"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "7.19.3",
+    "@babel/plugin-transform-typescript": "7.19.3",
+    "@types/node": "18.7.23",
+    "@types/react": "18.0.21",
+    "@types/react-calendar": "3.5.2",
+    "@types/react-dom": "18.0.6",
+    "electron": "20.1.0",
+    "electron-builder": "23.3.3",
+    "next": "12.2.5",
+    "nextron": "8.2.0",
+    "react": "18.2.0",
+    "react-calendar": "3.9.0",
+    "react-dom": "18.2.0",
+    "react-search": "2.1.1",
+    "ts-loader": "9.4.1",
+    "typescript": "4.8.2"
+  }
+}

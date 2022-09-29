@@ -1,0 +1,12 @@
+appId: com.github.thedome.shiftX
+productName: ShiftX
+copyright: Copyright © 2022 Dominic Heun
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null

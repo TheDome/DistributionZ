@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": false,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "incremental": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "experimentalDecorators": true,
+    "baseUrl": "./",
+    "rootDir": "./",
+    "outDir": "./dist-ts",
+    "composite": true,
+    "paths": { "@/ipc/model/*": ["main/ipc/model/*"] }
+  },
+  "exclude": [
+    "node_modules",
+    "renderer/next.config.js",
+    "app",
+    "dist",
+    "nextron.config.js"
+  ]
+}

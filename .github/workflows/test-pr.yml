@@ -1,0 +1,172 @@
+name: Test and publish
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+      
+concurrency:
+  cancel-in-progress: true
+  group: "test-and-publish-${{ github.ref }}"
+
+jobs:
+  
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3.4.1
+        with:
+          node-version: 17.x
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-17.x-${{ hashFiles('**/package-lock.json') }}
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+  action-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download actionlint
+        id: get_actionlint
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        shell: bash
+
+      - name: actionlint version
+        run: ${{ steps.get_actionlint.outputs.executable }} -version
+        shell: bash
+
+      - name: Check workflow files
+        # TODO: include composites (https://github.com/rhysd/actionlint/issues/46)
+        run: ${{ steps.get_actionlint.outputs.executable }} -color -verbose
+        shell: bash 
+
+  audit:
+    timeout-minutes: 10
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: sdlc:audit
+        run: |
+          npm ci
+          npx audit-ci --high
+        
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - action-lint
+      - audit
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x, 17.x ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{matrix.node-version}}-${{ hashFiles('**/package-lock.json') }}
+      - run: yarn --frozen-lockfile
+      - run:  |
+         yarn build
+        name: Build
+
+#  test:
+#    runs-on: ubuntu-latest
+#    needs:
+#      - build
+#    strategy:
+#      matrix:
+#        node-version: [12.x, 14.x, 16.x, 17.x ]
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install Node ${{ matrix.node-version }}
+#        uses: actions/setup-node@v3.4.1
+#        with:
+#          node-version: ${{ matrix.node-version }}
+#      - uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.npm
+#            node_modules
+#          key: ${{ runner.os }}-node-${{matrix.node-version}}-${{ hashFiles('**/package-lock.json') }}
+#      - run: npm ci --ignore-scripts
+#      - run: npm run build --if-present
+#        name: Build
+#      - run: npm test -- --coverage
+#        env:
+#          CI: true
+#      - uses: codecov/codecov-action@v3
+        
+  semantic-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v3.4.1
+        with:
+          node-version: 17.x
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-17.x-${{ hashFiles('**/package-lock.json') }}
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm publish --dry-run
+      - shell: bash
+        run: |
+          sudo npm install -g \
+            semantic-release@latest \
+            @semantic-release/git@latest \
+            @semantic-release/release-notes-generator@latest \
+            @semantic-release/github@latest \
+            @semantic-release/npm@latest
+      - shell: bash
+        run: |
+          semantic-release \
+            --branches master \
+            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github,@semantic-release/npm" \
+            --tag-format "\${version}" \
+            --debug true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  auto-merge:
+    needs:
+      - semantic-release
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: fastify/github-action-merge-dependabot@v3.3.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
