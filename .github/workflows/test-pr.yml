@@ -128,19 +128,17 @@ jobs:
             semantic-release@latest \
             @semantic-release/git@latest \
             @semantic-release/release-notes-generator@latest \
-            @semantic-release/github@latest \
-            @semantic-release/npm@latest
+            @semantic-release/github@latest 
       - shell: bash
         run: |
           semantic-release \
             --branches master \
-            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github,@semantic-release/npm" \
+            --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github" \
             --tag-format "\${version}" \
             --debug true
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   auto-merge:
     needs:
