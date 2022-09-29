@@ -1,0 +1,40 @@
+name: Compile assets
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  compile-linux-release-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set version
+        shell: bash
+        run: |
+          npm version --no-git-tag-version ${{ github.event.release.tag_name }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - run: yarn --frozen-lockfile
+      - run:  |
+          yarn build
+        name: Build
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./target/release/ReView
+          asset_name: ReView-linux-amd64
+          asset_content_type: application/octet-stream

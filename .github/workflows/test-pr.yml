@@ -12,22 +12,8 @@ concurrency:
   group: "test-and-publish-${{ github.ref }}"
 
 jobs:
-  
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3.4.1
-        with:
-          node-version: 17.x
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.npm
-            node_modules
-          key: ${{ runner.os }}-node-17.x-${{ hashFiles('**/package-lock.json') }}
-      - run: npm ci --ignore-scripts
-      - run: npm run lint
+
+
   action-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -62,7 +48,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       - name: sdlc:audit
         run: |
-          npm ci
+          yarn --frozen-lockfile
           npx audit-ci --high
         
   build:
