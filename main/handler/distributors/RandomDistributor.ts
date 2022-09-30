@@ -14,7 +14,7 @@ import { inspect } from "util";
  */
 export default class RandomDistributor implements Distributor {
   get name(): string {
-    return RandomDistributor.name;
+    return "RandomDistributor";
   }
 
   async distribute(fromDate: Date, toDate: Date): Promise<ipcShift[]> {
