@@ -81,7 +81,7 @@ jobs:
               releaseName: `Savannah ${context.payload.release.tag_name}`,
             };
 
-            fs.writeFileSync(path.join('${{ github.workspace }}', 'latest.yml'), latestYml);
+            fs.writeFileSync(path.join('${{ github.workspace }}', 'latest.yml'), JSON.stringify(latestYml, null, 2));
       - run: |
           cp latest.yml latest-mac.yml
           cp latest.yml latest-linux.yml
