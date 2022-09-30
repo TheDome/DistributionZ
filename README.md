@@ -1,4 +1,4 @@
-# ShiftX
+# DistrobutionZ
 
 Ever wanted to distribute workers across several shifts?
 

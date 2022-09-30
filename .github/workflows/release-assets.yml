@@ -1,0 +1,65 @@
+name: Compile assets
+
+on:
+  release:
+    types:
+      - released
+
+jobs:
+  compile-linux-release-assets:
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: [16.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build on Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.4.1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set version
+        shell: bash
+        run: |
+          npm version --no-git-tag-version ${{ github.event.release.tag_name }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
+      - run: yarn --frozen-lockfile
+      - run:  |
+          yarn build
+        name: Build
+      - name: Upload Release Asset (Linux)
+        uses: actions/upload-release-asset@v1
+        if: runner.os == 'linux'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.AppImage
+          asset_name: DistributionZ-${{ github.event.release.tag_name }}.AppImage
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset (Mac)
+        uses: actions/upload-release-asset@v1
+        if: runner.os == 'macos'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.dmg
+          asset_name: DistributionZ-${{ github.event.release.tag_name }}.dmg
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset (Windows)
+        uses: actions/upload-release-asset@v1
+        if: runner.os == 'windows'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/DistributionZ Setup ${ { github.event.release.tag_name }}.exe
+          asset_name: DistributionZ Setup ${ { github.event.release.tag_name }}.exe
+          asset_content_type: application/octet-stream

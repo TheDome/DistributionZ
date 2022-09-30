@@ -1,0 +1,14 @@
+appId: com.github.thedome.distributionz
+productName: DistributionZ
+copyright: Copyright © 2022 Dominic Heun
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - from: .
+    filter:
+      - package.json
+      - app
+publish: null
+linux:
+  category: Utility
