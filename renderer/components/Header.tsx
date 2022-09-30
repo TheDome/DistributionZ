@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <Navbar.Brand href="/">ShiftX</Navbar.Brand>
+        <Navbar.Brand href="/">DistributionZ</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar" />
         <Navbar.Collapse id="navbar">
           <Nav>

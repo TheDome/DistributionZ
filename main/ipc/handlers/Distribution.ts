@@ -7,12 +7,6 @@ export default async function register() {
   ipcMain.handle(
     "distributeEmployees",
     async (event, [distributor, fromDate, toDate]) => {
-      console.log("distributing with " + distributor);
-      console.log("from " + fromDate);
-      console.log("to " + toDate);
-
-      distributor = "Random";
-
       const d = distributors.find((d) => d.name === distributor);
 
       if (d === undefined) {

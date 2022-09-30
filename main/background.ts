@@ -1,5 +1,6 @@
 import { app, ipcMain } from "electron";
 import serve from "electron-serve";
+import { setupDev } from "./dev";
 import { createWindow } from "./helpers";
 import { registerIPC } from "./ipc";
 import db from "./persistence";
@@ -22,29 +23,7 @@ if (isProd) {
     console.error
   );
 
-  if (!isProd) {
-    await Promise.all([
-      Employee.create({ name: "John Worms " }),
-      Employee.create({ name: "Jane Doe " }),
-    ])
-      .then(([john, jane]) => {
-        return Promise.all([
-          Blocked.create({
-            date: new Date().getTime(),
-            employeeId: john.id,
-          }),
-          Shift.create({ date: new Date().getTime() }),
-          jane,
-        ]);
-      })
-      .then(([blocked, shift, employee]) => {
-        return Participation.create({
-          employeeId: employee.id,
-          shiftId: shift.id,
-        });
-      })
-      .catch(console.error);
-  }
+  await setupDev(isProd);
 
   await registerIPC();
 
