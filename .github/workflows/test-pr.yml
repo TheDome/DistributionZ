@@ -41,9 +41,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.npm
+            ~/.yarn
+            .yarn
             node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
       - name: sdlc:audit
         run: |
           yarn --frozen-lockfile
@@ -66,9 +67,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.npm
+            ~/.yarn
+            .yarn
             node_modules
-          key: ${{ runner.os }}-node-${{matrix.node-version}}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
       - run: yarn --frozen-lockfile
       - run:  |
          yarn build
@@ -90,9 +92,10 @@ jobs:
 #      - uses: actions/cache@v3
 #        with:
 #          path: |
-#            ~/.npm
+#            ~/.yarn
+#            .yarn
 #            node_modules
-#          key: ${{ runner.os }}-node-${{matrix.node-version}}-${{ hashFiles('**/package-lock.json') }}
+#          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
 #      - run: npm ci --ignore-scripts
 #      - run: npm run build --if-present
 #        name: Build
@@ -112,16 +115,14 @@ jobs:
           fetch-depth: 1
       - uses: actions/setup-node@v3.4.1
         with:
-          node-version: 17.x
+          node-version: 16.x
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.npm
+            ~/.yarn
+            .yarn
             node_modules
-          key: ${{ runner.os }}-node-17.x-${{ hashFiles('**/package-lock.json') }}
-      - run: npm ci --ignore-scripts
-      - run: npm run build
-      - run: npm publish --dry-run
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
       - shell: bash
         run: |
           sudo npm install -g \
@@ -132,7 +133,7 @@ jobs:
       - shell: bash
         run: |
           semantic-release \
-            --branches master \
+            --branches main \
             --plugins "@semantic-release/commit-analyzer,@semantic-release/release-notes-generator,@semantic-release/git,@semantic-release/github" \
             --tag-format "\${version}" \
             --debug true
