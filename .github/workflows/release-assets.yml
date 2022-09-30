@@ -53,6 +53,16 @@ jobs:
           asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.dmg
           asset_name: DistributionZ-${{ github.event.release.tag_name }}.dmg
           asset_content_type: application/octet-stream
+      - name: Upload Release Asset (Mac/ZIP)
+        uses: actions/upload-release-asset@v1
+        if: runner.os == 'macos'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}-mac.zip
+          asset_name: DistributionZ-${{ github.event.release.tag_name }}-mac.zip
+          asset_content_type: application/octet-stream
       - name: Upload Release Asset (Windows)
         uses: actions/upload-release-asset@v1
         if: runner.os == 'windows'
@@ -64,13 +74,35 @@ jobs:
           asset_name: DistributionZ Setup ${{ github.event.release.tag_name }}.exe
           asset_content_type: application/octet-stream
 
+
   create-auto-update-scripts:
     runs-on: ubuntu-latest
+    needs: 
+    - compile-linux-release-assets
     steps:
-      # Simply create a file named 
-      # latest.yml with the following content:
-      # releaseNotes: ${{ github.event.release.body }}
-      # releaseName: Savannah ${{ github.event.release.tag_name }}
+      # Download artifact and create sha512 checksum
+      - name: Download Release Asset (Linux)
+        uses: actions/download-artifact@v2
+        with:
+          name: DistributionZ-${{ github.event.release.tag_name }}.AppImage
+          path: ./dist
+      - name: Download Release Asset (Mac/ZIP)
+        uses: actions/download-artifact@v2
+        with:
+          name: DistributionZ-${{ github.event.release.tag_name }}-mac.zip
+          path: ./dist  
+      - name: Download Release Asset (Windows)
+        uses: actions/download-artifact@v2
+        with:
+          name: DistributionZ.Setup.${{ github.event.release.tag_name }}.exe
+          path: ./dist
+      - name: Create checksums
+        run: |
+          cd dist
+          sha512sum DistributionZ-${{ github.event.release.tag_name }}.AppImage > DistributionZ-${{ github.event.release.tag_name }}.AppImage.sha512
+          sha512sum DistributionZ-${{ github.event.release.tag_name }}-mac.zip > DistributionZ-${{ github.event.release.tag_name }}-mac.zip.sha512
+          sha512sum "DistributionZ Setup ${{ github.event.release.tag_name }}.exe" > "DistributionZ Setup ${{ github.event.release.tag_name }}.exe.sha512"
+
       - uses: actions/github-script@v5
         with:
           script: |
@@ -79,12 +111,37 @@ jobs:
             const latestYml = {
               releaseNotes: context.payload.release.body,
               releaseName: `Savannah ${context.payload.release.tag_name}`,
+              version: context.payload.release.tag_name,
+              files: []
             };
 
-            fs.writeFileSync(path.join('${{ github.workspace }}', 'latest.yml'), JSON.stringify(latestYml, null, 2));
-      - run: |
-          cp latest.yml latest-mac.yml
-          cp latest.yml latest-linux.yml
+            const files = fs.readdirSync(path.join(process.env.GITHUB_WORKSPACE, 'dist'));
+
+            // Create one yaml per checksum
+            for (const file of files) {
+              if (file.endsWith('.sha512')) {
+                const currentYAML = JSON.parse(JSON.stringify(latestYml));
+
+                const checksum = fs.readFileSync(path.join(process.env.GITHUB_WORKSPACE, 'dist', file), 'utf8');
+                const filename = file.replace('.sha512', '');
+                const url = `${context.payload.release.html_url}/download/${filename}`;
+
+                currentYAML.files.push({
+                  url,
+                  sha512: checksum,
+                });
+
+                // Determine filename by name
+                // win: latest.yaml
+                // mac: latest-mac.yaml
+                // linux: latest-linux.yaml
+
+                const filename = `latest-${file.includes('mac') ? 'mac' : file.includes('AppImage') ? 'linux' : ''}.yaml`;
+                
+                fs.writeFileSync(path.join(process.env.GITHUB_WORKSPACE, 'dist', filename), JSON.stringify(currentYAML));
+              }
+            }
+
       # Upload this to the release
       - name: Upload Release Asset (latest.yml)
         uses: actions/upload-release-asset@v1
