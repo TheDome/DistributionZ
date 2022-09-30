@@ -3,11 +3,17 @@ import { ipcRenderer } from "electron";
 import Employee from "@/ipc/model/Employee";
 import MonthData from "@/ipc/model/MonthData";
 import Shift from "@/ipc/model/Shift";
+import Distributor from "@/ipc/model/Distributor";
 
 import { createContext } from "react";
 
 export interface IApi {
-  distribute(fromDate: Date, toDate: Date): Promise<Shift[]>;
+  getDistributors(): Promise<string[]>;
+  distribute(
+    fromDate: Date,
+    toDate: Date,
+    distributor?: string
+  ): Promise<Shift[]>;
   blockEmployee(date: Date, id: number): unknown;
   removeBlocked(date: Date, id: any): Promise<boolean>;
   getBlocked(date: Date): Promise<Employee[]>;
@@ -78,7 +84,7 @@ export default class Api implements IApi {
   public async distribute(
     fromDate: Date,
     toDate: Date,
-    distributor = "Random"
+    distributor = "RandomDistributor"
   ): Promise<Shift[]> {
     return this.invokeRPC<Shift[]>(
       "distributeEmployees",
@@ -90,5 +96,11 @@ export default class Api implements IApi {
 
   public async setEmployeesForShift(date: Date, count: number): Promise<void> {
     return this.invokeRPC<void>("setEmployeesForShift", date, count);
+  }
+
+  public async getDistributors(): Promise<string[]> {
+    const dist = this.invokeRPC<Distributor[]>("listDistributors");
+
+    return dist.then((d) => d.map((d) => d.name));
   }
 }

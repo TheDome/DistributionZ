@@ -1,23 +1,42 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Button,
   ButtonGroup,
   ButtonToolbar,
   Container,
   Form,
+  FormControl,
   InputGroup,
   Table,
 } from "react-bootstrap";
 import Api, { APIContext, IApi } from "../components/api/Api";
 
 export default function Distribution() {
-  const [fromDate, setFromDate] = useState(new Date());
+  const currentDateMinusOneMonth = new Date();
+  currentDateMinusOneMonth.setMonth(currentDateMinusOneMonth.getMonth() - 1);
+
+  const [fromDate, setFromDate] = useState(currentDateMinusOneMonth);
   const [toDate, setToDate] = useState(new Date());
 
   const [generatedData, setGeneratedData] =
     useState<Awaited<ReturnType<IApi["distribute"]>>>();
 
+  const [distributors, setDistributors] =
+    useState<Awaited<ReturnType<IApi["getDistributors"]>>>();
+
+  const [selectedDistributor, setSelectedDistributor] = useState<string>();
+
   const api = useContext(APIContext);
+
+  useEffect(() => {
+    const dist = api.getDistributors();
+
+    dist.then((d) => {
+      console.assert(d.length > 0, "No distributors found");
+      setDistributors(d);
+      setSelectedDistributor(d[0]);
+    });
+  }, []);
 
   return (
     <Container className="mt-5">
@@ -114,11 +133,33 @@ export default function Distribution() {
             }}
           />
         </InputGroup>
+        <InputGroup>
+          <Form.Select
+            onChange={(e) => {
+              if (e.target.value === "0") {
+                setSelectedDistributor(undefined);
+                return;
+              }
+
+              setSelectedDistributor(e.target.value);
+            }}
+          >
+            {distributors?.map((distributor) => (
+              <option key={distributor} value={distributor}>
+                {distributor}
+              </option>
+            ))}
+          </Form.Select>
+        </InputGroup>
       </ButtonToolbar>
       <Button
         className="mt-3"
         onClick={async () => {
-          const dist = await api.distribute(fromDate, toDate);
+          const dist = await api.distribute(
+            fromDate,
+            toDate,
+            selectedDistributor
+          );
 
           setGeneratedData(dist);
         }}
