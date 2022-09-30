@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "DistributionZ",
-  "description": "ShiftX is an easy to use distribution system",
+  "description": "DistributionZ is an easy to use distribution system",
   "version": "0.0.0",
   "author": "Dominic Heun <dominic.heun@gmx.net>",
   "main": "app/background.js",
@@ -10,10 +10,12 @@
     "build": "nextron build",
     "postinstall": "electron-builder install-app-deps"
   },
+  "repository": "https://github.com/TheDome/DistributionZ",
   "dependencies": {
     "bootstrap": "5.2.1",
     "electron-serve": "1.1.0",
     "electron-store": "8.1.0",
+    "electron-updater": "^5.2.1",
     "react-bootstrap": "2.5.0",
     "reflect-metadata": "0.1.13",
     "sequelize": "6.23.2",

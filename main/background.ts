@@ -4,10 +4,8 @@ import { setupDev } from "./dev";
 import { createWindow } from "./helpers";
 import { registerIPC } from "./ipc";
 import db from "./persistence";
-import Blocked from "./persistence/model/Blocked";
-import Employee from "./persistence/model/Employee";
-import Participation from "./persistence/model/Participation";
-import Shift from "./persistence/model/Shift";
+
+import { autoUpdater } from "electron-updater";
 
 const isProd: boolean = process.env.NODE_ENV === "production";
 
@@ -24,6 +22,8 @@ if (isProd) {
   );
 
   await setupDev(isProd);
+
+  autoUpdater.checkForUpdatesAndNotify();
 
   await registerIPC();
 
