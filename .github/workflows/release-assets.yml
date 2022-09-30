@@ -6,6 +6,26 @@ on:
       - released
 
 jobs:
+
+  release-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v5
+        with:
+          script: |
+            //
+            console.log(github)
+            console.log(github.repos)
+            console.log(github.repos.listReleaseAssets)
+
+            const assets = await github.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id
+            });
+            console.log(assets)
+
+
   compile-release-assets:
     strategy:
       fail-fast: false
@@ -94,7 +114,7 @@ jobs:
             const latestMacYaml = JSON.parse(JSON.stringify(latestYml));
             const latestLinuxYaml = JSON.parse(JSON.stringify(latestYml));
 
-            const assets = await github.rest.repos.listReleaseAssets({
+            const assets = await github.repos.listReleaseAssets({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: context.payload.release.id
