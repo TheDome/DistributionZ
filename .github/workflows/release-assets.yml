@@ -41,7 +41,7 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.AppImage
-          asset_name: ReView-linux-AppImage-amd64
+          asset_name: DistributionZ-${{ github.event.release.tag_name }}.AppImage
           asset_content_type: application/octet-stream
       - name: Upload Release Asset (Mac)
         uses: actions/upload-release-asset@v1
@@ -51,7 +51,7 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.dmg
-          asset_name: ReView-macOS-dmg-amd64
+          asset_name: DistributionZ-${{ github.event.release.tag_name }}.dmg
           asset_content_type: application/octet-stream
       - name: Upload Release Asset (Windows)
         uses: actions/upload-release-asset@v1
@@ -61,5 +61,5 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./dist/DistributionZ Setup ${ { github.event.release.tag_name }}.exe
-          asset_name: ReView-Windows-Setup-amd64
+          asset_name: DistributionZ Setup ${ { github.event.release.tag_name }}.exe
           asset_content_type: application/octet-stream
