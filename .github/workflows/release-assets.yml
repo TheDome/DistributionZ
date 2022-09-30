@@ -14,11 +14,11 @@ jobs:
         with:
           script: |
             //
-            console.log(github)
-            console.log(github.repos)
-            console.log(github.repos.listReleaseAssets)
+            console.log(github.rest)
+            console.log(github.rest.repos)
+            console.log(github.rest.repos.listReleaseAssets)
 
-            const assets = await github.repos.listReleaseAssets({
+            const assets = await github.rest.repos.listReleaseAssets({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: context.payload.release.id
