@@ -63,3 +63,53 @@ jobs:
           asset_path: ./dist/DistributionZ Setup ${{ github.event.release.tag_name }}.exe
           asset_name: DistributionZ Setup ${{ github.event.release.tag_name }}.exe
           asset_content_type: application/octet-stream
+
+  create-auto-update-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      # Simply create a file named 
+      # latest.yml with the following content:
+      # releaseNotes: ${{ github.event.release.body }}
+      # releaseName: Savannah ${{ github.event.release.tag_name }}
+      - uses: actions/github-script@v5
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const latestYml = {
+              releaseNotes: context.payload.release.body,
+              releaseName: `Savannah ${context.payload.release.tag_name}`,
+            };
+
+            fs.writeFileSync(path.join('${{ github.workspace }}', 'latest.yml'), latestYml);
+      - run: |
+          cp latest.yml latest-mac.yml
+          cp latest.yml latest-linux.yml
+      # Upload this to the release
+      - name: Upload Release Asset (latest.yml)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./latest.yml
+          asset_name: latest.yml
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset (latest-mac.yml)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./latest-mac.yml
+          asset_name: latest-mac.yml
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset (latest-linux.yml)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./latest-linux.yml
+          asset_name: latest-linux.yml
+          asset_content_type: application/octet-stream

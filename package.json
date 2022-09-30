@@ -6,8 +6,8 @@
   "author": "Dominic Heun <dominic.heun@gmx.net>",
   "main": "app/background.js",
   "scripts": {
-    "dev": "nextron",
-    "build": "nextron build",
+    "dev": "rimraf dist-ts && nextron",
+    "build": "rimraf dist-ts && nextron build",
     "postinstall": "electron-builder install-app-deps"
   },
   "repository": "https://github.com/TheDome/DistributionZ",
@@ -37,6 +37,7 @@
     "react-calendar": "3.9.0",
     "react-dom": "18.2.0",
     "react-search": "2.1.1",
+    "rimraf": "^3.0.2",
     "ts-loader": "9.4.1",
     "typescript": "4.8.2"
   }
