@@ -67,10 +67,6 @@ jobs:
   create-auto-update-scripts:
     runs-on: ubuntu-latest
     steps:
-      - name: Build on Node.js 16.x
-        uses: actions/setup-node@v3.5.0
-        with:
-          node-version: 16.x
       # Simply create a file named 
       # latest.yml with the following content:
       # releaseNotes: ${{ github.event.release.body }}
