@@ -73,8 +73,13 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
       - run: yarn --frozen-lockfile
       - run:  |
-         yarn build
+         yarn build --all
         name: Build
+      # Upload build artifacts
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
 
 #  test:
 #    runs-on: ubuntu-latest
