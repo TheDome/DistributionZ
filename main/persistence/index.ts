@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import { SequelizeOptions, Sequelize } from "sequelize-typescript";
@@ -8,12 +9,16 @@ import Shift from "./model/Shift";
 
 let config: SequelizeOptions;
 
-const dir = join(homedir(), ".config", "shift-x", "db.sqlite");
+const dir = join(homedir(), ".config", "distributionz");
 
 if (process.env.NODE_ENV === "production") {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+
   config = {
     dialect: "sqlite",
-    storage: dir,
+    storage: join(dir, "distributionz.sqlite"),
     logging: false,
   };
 } else {
@@ -25,11 +30,8 @@ if (process.env.NODE_ENV === "production") {
   };
 }
 
-console.debug("Sequelize config:", config);
-
 const sequelize = new Sequelize(config);
 
 sequelize.addModels([Employee, Participation, Shift, Blocked]);
-console.log("Sequelize models:", sequelize.models);
 
 export default sequelize;
