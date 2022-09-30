@@ -1,5 +1,5 @@
-appId: com.github.thedome.shiftX
-productName: ShiftX
+appId: com.github.thedome.distributionz
+productName: DistributionZ
 copyright: Copyright © 2022 Dominic Heun
 directories:
   output: dist
@@ -10,3 +10,5 @@ files:
       - package.json
       - app
 publish: null
+linux:
+  category: Utility

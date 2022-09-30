@@ -2159,9 +2159,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ShiftX@workspace:.":
+"DistributionZ@workspace:.":
   version: 0.0.0-use.local
-  resolution: "ShiftX@workspace:."
+  resolution: "DistributionZ@workspace:."
   dependencies:
     "@babel/plugin-proposal-decorators": 7.19.3
     "@babel/plugin-transform-typescript": 7.19.3

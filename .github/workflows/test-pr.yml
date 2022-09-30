@@ -73,13 +73,21 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
       - run: yarn --frozen-lockfile
       - run:  |
-         yarn build --all
+         yarn build --linux --win
         name: Build
       # Upload build artifacts
       - uses: actions/upload-artifact@v3
         with:
-          name: dist
-          path: dist
+          name: Windows-Build
+          path: dist/DistributionZ Setup 0.0.0.exe
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux-AppImage-Build
+          path: dist/DistributionZ-0.0.0.AppImage
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux-Snap-Build
+          path: dist/DistributionZ_0.0.0_amd64.snap
 
 #  test:
 #    runs-on: ubuntu-latest
