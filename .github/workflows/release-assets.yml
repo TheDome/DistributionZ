@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [16.x]
-        include: 
+        config:
           - os: ubuntu-latest
             artifact: DistributionZ-${{ github.event.release.tag_name }}.AppImage
             updater-file: latest-linux.yml
@@ -23,8 +23,8 @@ jobs:
           - os: windows-latest
             artifact: DistributionZ Setup ${{ github.event.release.tag_name }}.exe
             updater-file: latest.yml
-    runs-on: ${{ matrix.os }}
-    name: Compile release asset ${{ matrix.artifact }} for ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
+    name: Compile release asset ${{ matrix.config.artifact }} for ${{ matrix.config.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Build on Node.js ${{ matrix.node-version }}
@@ -48,7 +48,7 @@ jobs:
       - name: Create sha256 of release asset
         shell: bash
         run: |
-          sha256sum "dist/${{ matrix.artifact }}" > "dist/${{ matrix.artifact }}.sha256sum"
+          sha256sum "dist/${{ matrix.config.artifact }}" > "dist/${{ matrix.config.artifact }}.sha256sum"
       - name: Upload Release Asset 
         uses: actions/upload-release-asset@v1
         id: upload-release-asset
@@ -56,8 +56,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/${{ matrix.artifact }}
-          asset_name: ${{ matrix.artifact }}
+          asset_path: dist/${{ matrix.config.artifact }}
+          asset_name: ${{ matrix.config.artifact }}
           asset_content_type: application/octet-stream
       - name: Upload Release Asset sha256sum
         uses: actions/upload-release-asset@v1
@@ -65,12 +65,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/${{ matrix.artifact }}.sha256sum
-          asset_name: ${{ matrix.artifact }}.sha256sum
+          asset_path: dist/${{ matrix.config.artifact }}.sha256sum
+          asset_name: ${{ matrix.config.artifact }}.sha256sum
           asset_content_type: text/plain
       - name: Upload Release Asset Updater File
         uses: actions/github-script@v5
-        if: ${{ matrix.updater-file }}
+        if: ${{ matrix.config.updater-file }}
         env:
           FILE_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
         with:
@@ -83,7 +83,7 @@ jobs:
             };
 
             // Read checksum from file
-            const checksum = require('fs').readFileSync(`dist/${{ matrix.artifact }}.sha256sum`, 'utf8').split(' ')[0];
+            const checksum = require('fs').readFileSync(`dist/${{ matrix.config.artifact }}.sha256sum`, 'utf8').split(' ')[0];
 
             latestJSON.files.push({
               url: process.env.FILE_URL,
@@ -95,6 +95,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: context.payload.release.id,
-                name: "${{ matrix.updater-file }}",
+                name: "${{ matrix.config.updater-file }}",
                 data: JSON.stringify(latestJSON, null, 2)
               });
