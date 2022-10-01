@@ -50,7 +50,7 @@ jobs:
         # if macos-latest, use shasum -a 256
         if: ${{ matrix.config.os == 'macos-latest' }}
         run: |
-          shasum -a 256 "dist/${{ matrix.config.artifact }}" > dist/${{ matrix.config.artifact }}.sha256
+          shasum -a 256 "dist/${{ matrix.config.artifact }}" > dist/${{ matrix.config.artifact }}.sha256sum
       - name: Create sha256 of release asset
         shell: bash
         # if ubuntu-latest, use sha256sum
