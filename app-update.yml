@@ -1,0 +1,4 @@
+provider: github
+repo: DistributionZ
+owner: TheDome
+vPrefixedTagName: false

@@ -23,12 +23,7 @@ if (isProd) {
 
   await setupDev(isProd);
 
-  autoUpdater.setFeedURL({
-    provider: "github",
-    owner: "thedome",
-    repo: "distributionz",
-  });
-  
+
   autoUpdater.checkForUpdatesAndNotify();
 
   await registerIPC();

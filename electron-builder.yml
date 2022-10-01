@@ -9,6 +9,8 @@ files:
     filter:
       - package.json
       - app
+extraResources:
+  - "app-update.yml"
 publish: null
 linux:
   category: Utility
