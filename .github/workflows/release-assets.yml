@@ -68,7 +68,7 @@ jobs:
 
             const headers = { 'content-type': "application/octet-stream", 'content-length': contentLength("dist/${{ matrix.config.artifact }}") };
 
-             const uploadAssetResponse = await github.repos.uploadReleaseAsset({
+             const uploadAssetResponse = await github.rest.repos.uploadReleaseAsset({
                 url: "${{ github.event.release.upload_url }}",
                 headers,
                 name: "${{ matrix.config.artifact }}",
@@ -77,7 +77,7 @@ jobs:
 
               const { data: { id: assetId , browser_download_url, name } } = uploadAssetResponse;
 
-              return { name };
+              return { name, browser_download_url };
       - name: Upload Release Asset sha256sum
         uses: actions/upload-release-asset@v1
         env:
