@@ -101,7 +101,7 @@ jobs:
 
             latestJSON.files.push({
               url,
-              sha512: checksum,
+              sha256: checksum,
             });
 
             // Upload release file
