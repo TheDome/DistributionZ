@@ -12,7 +12,20 @@ jobs:
       matrix:
         node-version: [16.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
+        include: 
+          - os: ubuntu-latest
+            artifact: DistributionZ-${{ github.event.release.tag_name }}.AppImage
+            updater-file: latest-linux.yml
+          - os: macos-latest
+            artifact: DistributionZ-${{ github.event.release.tag_name }}.dmg
+          - os: macos-latest
+            artifact: DistributionZ-${{ github.event.release.tag_name }}-mac.zip
+            updater-file: latest-mac.yml
+          - os: windows-latest
+            artifact: DistributionZ Setup ${{ github.event.release.tag_name }}.exe
+            updater-file: latest.yml
     runs-on: ${{ matrix.os }}
+    name: Compile release asset ${{ matrix.artifact }} for ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Build on Node.js ${{ matrix.node-version }}
@@ -33,107 +46,56 @@ jobs:
       - run:  |
           yarn build
         name: Build
-      - name: Upload Release Asset (Linux)
+      - name: Create sha256 of release asset
+        shell: bash
+        run: |
+          sha256sum "dist/${{ matrix.artifact }}" > "dist/${{ matrix.artifact }}.sha256sum"
+      - name: Upload Release Asset 
         uses: actions/upload-release-asset@v1
-        if: runner.os == 'linux'
+        id: upload-release-asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.AppImage
-          asset_name: DistributionZ-${{ github.event.release.tag_name }}.AppImage
+          asset_path: dist/${{ matrix.artifact }}
+          asset_name: ${{ matrix.artifact }}
           asset_content_type: application/octet-stream
-      - name: Upload Release Asset (Mac)
+      - name: Upload Release Asset sha256sum
         uses: actions/upload-release-asset@v1
-        if: runner.os == 'macos'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}.dmg
-          asset_name: DistributionZ-${{ github.event.release.tag_name }}.dmg
-          asset_content_type: application/octet-stream
-      - name: Upload Release Asset (Mac/ZIP)
-        uses: actions/upload-release-asset@v1
-        if: runner.os == 'macos'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/DistributionZ-${{ github.event.release.tag_name }}-mac.zip
-          asset_name: DistributionZ-${{ github.event.release.tag_name }}-mac.zip
-          asset_content_type: application/octet-stream
-      - name: Upload Release Asset (Windows)
-        uses: actions/upload-release-asset@v1
-        if: runner.os == 'windows'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./dist/DistributionZ Setup ${{ github.event.release.tag_name }}.exe
-          asset_name: DistributionZ Setup ${{ github.event.release.tag_name }}.exe
-          asset_content_type: application/octet-stream
-
-  create-auto-update-scripts:
-    runs-on: ubuntu-latest
-    needs: 
-    - compile-release-assets
-    steps:
-      # Download artifact and create sha512 checksum
-      - name: Create latest config
+          asset_path: dist/${{ matrix.artifact }}.sha256sum
+          asset_name: ${{ matrix.artifact }}.sha256sum
+          asset_content_type: text/plain
+      - name: Upload Release Asset Updater File
         uses: actions/github-script@v5
-        with: 
+        if: ${{ matrix.updater-file }}
+        env:
+          FILE_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
+        with:
           script: |
-            const latestYml = {
+            const latestJSON = {
               releaseNotes: context.payload.release.body,
               releaseName: `Savannah ${context.payload.release.tag_name}`,
               version: context.payload.release.tag_name,
               files: []
             };
 
-            const latestMacYaml = JSON.parse(JSON.stringify(latestYml));
-            const latestLinuxYaml = JSON.parse(JSON.stringify(latestYml));
+            // Read checksum from file
+            const checksum = require('fs').readFileSync(`dist/${{ matrix.artifact }}.sha256sum`, 'utf8').split(' ')[0];
 
-            const assets = await github.rest.repos.listReleaseAssets({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: context.payload.release.id
+            latestJSON.files.push({
+              url: process.env.FILE_URL,
+              sha512: checksum,
             });
 
-            console.log("Assets are", assets.data);
-
-            assets.data.forEach(asset => {
-              if (asset.name.endsWith('.exe')) {
-                latestYml.files.push({
-                  url: asset.browser_download_url,
-                  sha512: asset.checksum,
-                  size: asset.size,
-                  arch: 'x64'
-                });
-              } else if (asset.name.endsWith('mac.zip')) {
-                latestMacYaml.files.push({
-                  url: asset.browser_download_url,
-                  sha512: asset.checksum,
-                  size: asset.size,
-                  arch: 'x64'
-                });
-              } else if (asset.name.endsWith('.AppImage')) {
-                latestLinuxYaml.files.push({
-                  url: asset.browser_download_url,
-                  sha512: asset.checksum,
-                  size: asset.size,
-                  arch: 'x64'
-                });
-              }
-            });
-
-            // Attach to release 
-            [{name: "latest.yaml", data: latestYml}, {name: "latest-mac.yaml", data: latestMacYaml}, {name: "latest-linux.yaml", data: latestLinuxYaml}].forEach(async (file) => {
-              await github.rest.repos.createReleaseAsset({
+            // Upload release file
+            await github.rest.repos.uploadReleaseAsset({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: context.payload.release.id,
-                name: file.name,
-                data: JSON.stringify(file.data, null, 2)
+                name: ${{ matrix.updater-file }},
+                data: JSON.stringify(latestJSON, null, 2)
               });
-            });
