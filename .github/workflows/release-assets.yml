@@ -57,27 +57,16 @@ jobs:
         if: ${{ matrix.config.os != 'macos-latest' }}
         run: |
           sha256sum "dist/${{ matrix.config.artifact }}" > "dist/${{ matrix.config.artifact }}.sha256sum"
-      - name: Upload release asset
-        uses: actions/github-script@v6
+      - name: Upload Release Asset 
+        uses: actions/upload-release-asset@v1
         id: upload-release-asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          script: |
-            const fs = require('fs');
-
-            const contentLength = filePath => fs.statSync(filePath).size;
-
-            const headers = { 'content-type': "application/octet-stream", 'content-length': contentLength("dist/${{ matrix.config.artifact }}") };
-
-             const uploadAssetResponse = await github.rest.repos.uploadReleaseAsset({
-                url: "${{ github.event.release.upload_url }}",
-                headers,
-                name: "${{ matrix.config.artifact }}",
-                file: fs.readFileSync("dist/${{ matrix.config.artifact }}")
-              });
-
-              const { data: { id: assetId , browser_download_url, name } } = uploadAssetResponse;
-
-              return name;
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/${{ matrix.config.artifact }}
+          asset_name: ${{ matrix.config.artifact }}
+          asset_content_type: application/octet-stream
       - name: Upload Release Asset sha256sum
         uses: actions/upload-release-asset@v1
         env:
@@ -91,7 +80,7 @@ jobs:
         uses: actions/github-script@v5
         if: ${{ matrix.config.updater-file }}
         env:
-          FILE_URL: ${{ steps.upload-release-asset.outputs.result }}
+          FILE_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
         with:
           script: |
             const latestJSON = {
@@ -105,10 +94,12 @@ jobs:
             const checksum = require('fs').readFileSync(`dist/${{ matrix.config.artifact }}.sha256sum`, 'utf8').split(' ')[0];
 
             // Remove all from the url except after the last slash
-            const url = process.env.FILE_URL
+            const url = process.env.FILE_URL.replace(`https://github.com/TheDome/DistributionZ/releases/download/${context.payload.release.tag_name}`, '');
+
+            console.log("Filename is ", url);
 
             latestJSON.files.push({
-              url: process.env.FILE_URL,
+              url,
               sha512: checksum,
             });
 
