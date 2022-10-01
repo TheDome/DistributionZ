@@ -1352,10 +1352,10 @@
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.5.tgz#5f19d2b85a98e9558036f6a3cacc8819420f05cf"
   integrity sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==
 
-"@types/react-calendar@3.5.2":
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/@types/react-calendar/-/react-calendar-3.5.2.tgz#e401034e4bb82f4510ba87aa490e98b5746e16e0"
-  integrity sha512-8gkU9KaE33VVbu3YWvxXjEk4BsalgSYR3c/5XF9XNJiQ/2MKxiGkTg/PfOHUX/BvcADykRBMAEJiCi6jFPEE3A==
+"@types/react-calendar@3.5.3":
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/@types/react-calendar/-/react-calendar-3.5.3.tgz#f9dcf62a14089d1d7352d35f29e43e04a9d248ae"
+  integrity sha512-CRbEPcK+KolZBKeaJ/pm5VzRSA4KVTsz/c61Vdl74y0tuZm7WHIJPaRvVM+3ggInc8TkJrrt8/YKVrkrwGkfrA==
   dependencies:
     "@types/react" "*"
 
