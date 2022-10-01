@@ -38,7 +38,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.npm
+            ~/.yarn
+            .yarn
             node_modules
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/yarn.lock') }}
       - run: yarn --frozen-lockfile
