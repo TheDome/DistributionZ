@@ -47,6 +47,14 @@ jobs:
         name: Build
       - name: Create sha256 of release asset
         shell: bash
+        # if macos-latest, use shasum -a 256
+        if: ${{ matrix.config.os == 'macos-latest' }}
+        run: |
+          shasum -a 256 "dist/${{ matrix.config.artifact }}" > dist/${{ matrix.config.artifact }}.sha256
+      - name: Create sha256 of release asset
+        shell: bash
+        # if ubuntu-latest, use sha256sum
+        if: ${{ matrix.config.os != 'macos-latest' }}
         run: |
           sha256sum "dist/${{ matrix.config.artifact }}" > "dist/${{ matrix.config.artifact }}.sha256sum"
       - name: Upload Release Asset 
