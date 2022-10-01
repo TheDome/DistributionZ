@@ -45,6 +45,8 @@ jobs:
             .yarn
             node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: sdlc:audit
         run: |
           yarn --frozen-lockfile
@@ -71,6 +73,8 @@ jobs:
             .yarn
             node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - run: yarn --frozen-lockfile
       - run:  |
          yarn build
@@ -132,6 +136,8 @@ jobs:
             .yarn
             node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - shell: bash
         run: |
           sudo npm install -g \
