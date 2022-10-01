@@ -11,7 +11,6 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [16.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
         include: 
           - os: ubuntu-latest
             artifact: DistributionZ-${{ github.event.release.tag_name }}.AppImage
@@ -96,6 +95,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 release_id: context.payload.release.id,
-                name: ${{ matrix.updater-file }},
+                name: "${{ matrix.updater-file }}",
                 data: JSON.stringify(latestJSON, null, 2)
               });
