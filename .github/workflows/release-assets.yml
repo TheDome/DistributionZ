@@ -78,7 +78,7 @@ jobs:
           asset_name: ${{ matrix.config.artifact }}.sha256sum
           asset_content_type: text/plain
       - name: Upload Release Asset Updater File
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         if: ${{ matrix.config.updater-file }}
         env:
           FILE_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
