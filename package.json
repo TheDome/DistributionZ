@@ -34,7 +34,7 @@
     "next": "13.0.3",
     "nextron": "8.2.0",
     "react": "18.2.0",
-    "react-calendar": "3.9.0",
+    "react-calendar": "4.0.0",
     "react-dom": "18.2.0",
     "react-search": "2.1.1",
     "rimraf": "^3.0.2",
