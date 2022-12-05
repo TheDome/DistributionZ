@@ -26,7 +26,7 @@
     "@babel/plugin-proposal-decorators": "7.20.5",
     "@babel/plugin-transform-typescript": "7.20.2",
     "@types/node": "18.11.10",
-    "@types/react": "18.0.25",
+    "@types/react": "18.0.26",
     "@types/react-calendar": "3.9.0",
     "@types/react-dom": "18.0.9",
     "electron": "22.0.0",
