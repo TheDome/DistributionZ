@@ -31,7 +31,7 @@
     "@types/react-dom": "18.0.9",
     "electron": "22.0.0",
     "electron-builder": "23.6.0",
-    "next": "13.0.7",
+    "next": "13.1.0",
     "nextron": "8.2.0",
     "react": "18.2.0",
     "react-calendar": "4.0.0",
