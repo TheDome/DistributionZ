@@ -20,7 +20,7 @@
     "reflect-metadata": "0.1.13",
     "sequelize": "6.28.0",
     "sequelize-typescript": "2.1.5",
-    "sqlite3": "5.1.4"
+    "sqlite3": "5.1.5"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "7.20.7",
